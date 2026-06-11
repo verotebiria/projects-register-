@@ -1,0 +1,140 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Projects Register APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform and build tools
+        run: |
+          yes | sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" || true
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Install Capacitor CLI
+        run: npm install -g @capacitor/cli@6
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Add Capacitor Android platform
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          else
+            echo "Android platform already present"
+          fi
+
+      - name: Place icon assets
+        run: |
+          if [ ! -f "projects_register_icons.zip" ]; then
+            echo "::warning::projects_register_icons.zip not found"
+            exit 0
+          fi
+          unzip -o projects_register_icons.zip -d /tmp/icons/
+          RES="android/app/src/main/res"
+          install -Dm644 /tmp/icons/icon_48x48.png    "$RES/mipmap-mdpi/ic_launcher.png"
+          install -Dm644 /tmp/icons/icon_48x48.png    "$RES/mipmap-mdpi/ic_launcher_round.png"
+          install -Dm644 /tmp/icons/icon_72x72.png    "$RES/mipmap-hdpi/ic_launcher.png"
+          install -Dm644 /tmp/icons/icon_72x72.png    "$RES/mipmap-hdpi/ic_launcher_round.png"
+          install -Dm644 /tmp/icons/icon_96x96.png    "$RES/mipmap-xhdpi/ic_launcher.png"
+          install -Dm644 /tmp/icons/icon_96x96.png    "$RES/mipmap-xhdpi/ic_launcher_round.png"
+          install -Dm644 /tmp/icons/icon_144x144.png  "$RES/mipmap-xxhdpi/ic_launcher.png"
+          install -Dm644 /tmp/icons/icon_144x144.png  "$RES/mipmap-xxhdpi/ic_launcher_round.png"
+          install -Dm644 /tmp/icons/icon_192x192.png  "$RES/mipmap-xxxhdpi/ic_launcher.png"
+          install -Dm644 /tmp/icons/icon_192x192.png  "$RES/mipmap-xxxhdpi/ic_launcher_round.png"
+          for density in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            install -Dm644 /tmp/icons/icon_192x192.png "$RES/mipmap-${density}/ic_launcher_foreground.png"
+          done
+          cp /tmp/icons/icon_192x192.png dist/icon_192x192.png
+          mkdir -p "$RES/mipmap-anydpi-v26"
+          cat > "$RES/mipmap-anydpi-v26/ic_launcher.xml" << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>
+EOF
+          cat > "$RES/mipmap-anydpi-v26/ic_launcher_round.xml" << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>
+EOF
+          cat > "$RES/values/ic_launcher_background.xml" << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#0D1117</color>
+</resources>
+EOF
+          echo "Icons placed"
+
+      - name: Place splash screen assets
+        run: |
+          if [ ! -f "projects_register_splash.zip" ]; then
+            echo "::warning::projects_register_splash.zip not found"
+            exit 0
+          fi
+          unzip -o projects_register_splash.zip -d /tmp/splash/
+          RES="android/app/src/main/res"
+          install -Dm644 /tmp/splash/splash_640x640.png   "$RES/drawable-mdpi/splash.png"
+          install -Dm644 /tmp/splash/splash_640x640.png   "$RES/drawable-hdpi/splash.png"
+          install -Dm644 /tmp/splash/splash_960x960.png   "$RES/drawable-xhdpi/splash.png"
+          install -Dm644 /tmp/splash/splash_960x960.png   "$RES/drawable-xxhdpi/splash.png"
+          install -Dm644 /tmp/splash/splash_1280x1280.png "$RES/drawable-xxxhdpi/splash.png"
+          install -Dm644 /tmp/splash/splash_1920x1920.png "$RES/drawable-land/splash.png"
+          install -Dm644 /tmp/splash/splash_2732x2732.png "$RES/drawable-sw600dp/splash.png"
+          install -Dm644 /tmp/splash/splash_1280x1280.png "$RES/drawable/splash.png"
+          echo "Splash assets placed"
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: projects-register-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
