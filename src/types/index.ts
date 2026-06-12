@@ -1,15 +1,6 @@
-export type ProjectStatus = 'Active' | 'Development' | 'Testing' | 'Archived';
-
-export interface ProjectResources {
-  repositoryUrl?: string;
-  websiteUrl?: string;
-  domainName?: string;
-  hostingProvider?: string;
-  firebaseProjectId?: string;
-  vercelProject?: string;
-  mapboxProject?: string;
-  sanityDataset?: string;
-  customNotes?: string;
+export interface ProjectAccount {
+  platformId: string;
+  accountId:  string;
 }
 
 export interface Project {
@@ -19,25 +10,24 @@ export interface Project {
   status: ProjectStatus;
   notes?: string;
   tags: string[];
-  resources: ProjectResources;
-  linkedAccountTypeIds: string[];
-  linkedEmailIds: string[];
+  accounts: ProjectAccount[];
   createdAt: string;
   updatedAt: string;
 }
 
-export interface AccountType {
+export type ProjectStatus = 'Active' | 'Development' | 'Testing' | 'Archived';
+
+export interface Platform {
   id: string;
   name: string;
   createdAt: string;
 }
 
-export interface EmailEntry {
+export interface Account {
   id: string;
-  address: string;
+  value: string;
   label?: string;
-  linkedAccountTypeIds: string[];
   createdAt: string;
 }
 
-export type Page = 'Dashboard' | 'Projects' | 'Accounts' | 'Add / Edit' | 'Settings';
+export type MenuPage = 'Projects' | 'Platforms' | 'Accounts' | 'Add / Edit' | 'Settings';
