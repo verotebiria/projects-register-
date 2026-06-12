@@ -1,60 +1,54 @@
-// ── Palette — derived from actual Projects Register branding ──────
-// Icon: deep navy circle, blue folder with document lines, gold checkmark
-// Splash: dark navy bg, "Projects Register" in gold/amber
-
 export const C = {
-  // Backgrounds
-  bg:       '#0D1117',   // near-black navy — matches splash bg
-  surface:  '#111620',   // slightly lighter surface
-  card:     '#161B26',   // card background
-  border:   '#1E2535',   // subtle border
-  borderHi: '#2A3248',   // highlighted border
-
-  // Brand colours from icon
-  navy:     '#1C3A6E',   // deep navy from icon circle/folder
+  bg:       '#0D1117',
+  surface:  '#111620',
+  card:     '#161B26',
+  border:   '#1E2535',
+  borderHi: '#2A3248',
   navyLo:   'rgba(28,58,110,0.20)',
-  blue:     '#2B6CB0',   // mid blue from folder
+  blue:     '#2B6CB0',
   blueLo:   'rgba(43,108,176,0.15)',
-  gold:     '#F5A623',   // amber/gold from checkmark & splash text
-  goldLo:   'rgba(245,166,35,0.14)',
+  gold:     '#F5A623',
+  goldLo:   'rgba(245,166,35,0.12)',
   goldMid:  'rgba(245,166,35,0.25)',
-
-  // Semantic
-  accent:   '#F5A623',   // primary action = gold (matches brand)
-  accentLo: 'rgba(245,166,35,0.12)',
-  accentMid:'rgba(245,166,35,0.22)',
-
-  // Status
   green:    '#3DD68C',
   greenLo:  'rgba(61,214,140,0.12)',
-  amber:    '#F5A623',
-  amberLo:  'rgba(245,166,35,0.12)',
   red:      '#E05252',
   redLo:    'rgba(224,82,82,0.12)',
   purple:   '#8B72D4',
   purpleLo: 'rgba(139,114,212,0.12)',
-  purpleMid:'rgba(139,114,212,0.22)',
-
-  // Text
-  text:     '#E8EAF2',   // primary text
-  textSub:  '#9BA3BF',   // secondary
-  textMut:  '#4A4F63',   // muted / labels
-
-  // Fonts
+  accent:   '#F5A623',
+  accentLo: 'rgba(245,166,35,0.12)',
+  accentMid:'rgba(245,166,35,0.25)',
+  text:     '#E8EAF2',
+  textSub:  '#9BA3BF',
+  textMut:  '#4A4F63',
   mono:     "'JetBrains Mono', monospace",
   sans:     "'Inter', sans-serif",
 } as const;
 
 export const STATUS_COLOR: Record<string, string> = {
-  Active:      C.green,
-  Development: C.blue,
-  Testing:     C.gold,
-  Archived:    C.textMut,
+  Active:      '#3DD68C',
+  Development: '#2B6CB0',
+  Testing:     '#F5A623',
+  Archived:    '#4A4F63',
 };
 
 export const STATUS_BG: Record<string, string> = {
-  Active:      C.greenLo,
-  Development: C.blueLo,
-  Testing:     C.goldLo,
+  Active:      'rgba(61,214,140,0.12)',
+  Development: 'rgba(43,108,176,0.15)',
+  Testing:     'rgba(245,166,35,0.12)',
   Archived:    'rgba(74,79,99,0.12)',
 };
+
+// Consistent colour per platform index for visual variety
+export const PALETTE = [
+  { bg: 'rgba(91,110,245,0.13)',  border: 'rgba(91,110,245,0.30)',  text: '#7B8FF7' },
+  { bg: 'rgba(245,166,35,0.13)',  border: 'rgba(245,166,35,0.30)',  text: '#F5A623' },
+  { bg: 'rgba(61,214,140,0.12)',  border: 'rgba(61,214,140,0.28)',  text: '#3DD68C' },
+  { bg: 'rgba(139,114,212,0.13)', border: 'rgba(139,114,212,0.30)', text: '#9B72F5' },
+  { bg: 'rgba(43,108,176,0.14)',  border: 'rgba(43,108,176,0.30)',  text: '#5BA3E8' },
+  { bg: 'rgba(224,82,82,0.12)',   border: 'rgba(224,82,82,0.28)',   text: '#E05252' },
+  { bg: 'rgba(61,214,140,0.08)',  border: 'rgba(61,214,140,0.20)',  text: '#2ECC87' },
+  { bg: 'rgba(245,100,180,0.12)', border: 'rgba(245,100,180,0.28)', text: '#F564B4' },
+];
+export const pal = (i: number) => PALETTE[i % PALETTE.length];
